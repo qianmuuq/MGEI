@@ -16,7 +16,7 @@ plt.rcParams['font.sans-serif'] = ['SimHei']
 matplotlib.rcParams['axes.unicode_minus'] = False
 
 def data_process():
-    with open('/root/error_corrected/code/rag_doc/docs_3.json') as f:
+    with open('./skeleton.json') as f:
         data = json.load(f)
     
     sql_label = {}
@@ -69,25 +69,14 @@ def data_loader(data, sql, label, tokenizer):
             sql = tokenizer.convert_tokens_to_ids(['[CLS]'] + list(sql_token[i][:max_len-2]) + ['[SEP]'])
             # ss = torch.zeros(max_len).long()
             label_martix[label[i]][:len(sql)] = torch.tensor(sql)
-            # ss = torch.zeros(max_len, dtype=torch.uint8)
             label_mask[label[i]][:len(sql)] = 1
-        # print(data[i][:254])
         data_label[i] = label[i]
-        # sql_label[i] = label[i]
         text = tokenizer.convert_tokens_to_ids(['[CLS]'] + list(data_token[i][:max_len-2]) + ['[SEP]'])
-        # sql = tokenizer.convert_tokens_to_ids(['[CLS]'] + list(sql_token[i][:max_len-2]) + ['[SEP]'])
         text_input[i][:len(text)] = torch.tensor(text)
-        # sql_input[i][:len(sql)] = torch.tensor(sql)
         mask_input[i][:len(text)] = 1
-        # sql_mask_input[i][:len(sql)] = 1
-    # print(text_input[0])
+
     print(text_input.size(), mask_input.size(), data_label.size(), sql_input.size(), sql_mask_input.size(), sql_label.size())
-    # print(len(label_index))
-    # for i, j in enumerate(label_index):
-    #     if j!=i:
-    #         print(i,j)
-    # # print(label_martix)
-    # print(label_mask)
+
     return TensorDataset(text_input, mask_input, data_label), label_index, label_martix, label_mask
 
 class Word_BERT(nn.Module):
@@ -180,11 +169,7 @@ def train(train_data, label_index, label_martix, label_mask, epochs = 40):
 if __name__=='__main__':
     data, sqls, labels = data_process()
     print(data[0], sqls[0], labels[0])
-    #加载bert token和config
-    tokenizer = AutoTokenizer.from_pretrained(r'/root/data/bert-base-uncased', use_fast=True)
-    config = AutoConfig.from_pretrained(r'/root/data/bert-base-uncased')
-    # #处理成模型输入的dataloader
+    tokenizer = AutoTokenizer.from_pretrained(r'./bert-base-uncased', use_fast=True)
+    config = AutoConfig.from_pretrained(r'./bert-base-uncased')
     train_tensor, label_index, label_martix, label_mask = data_loader(data, sqls, labels, tokenizer)
-    # test_tensor = data_loader(test_data, test_label, tokenizer, max_len)
-    # #训练bert分类
     train(train_tensor, label_index, label_martix, label_mask, epochs = 15)

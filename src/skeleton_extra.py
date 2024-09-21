@@ -8,21 +8,15 @@ def remove_str(text):
     text = re.sub(pattern, '_', text)
     return text
 
-with open('/root/spider_dataset/instruct_data/train.json') as f:
+with open('./instruct_data/dev.json') as f:
     data = json.load(f)
 
 total = []
-# print(data[0])
+
 question = [i['instruction'].split('answer the question "')[1].split('"\n\n### Input')[0] for i in data]
 schema = [i['instruction'].split('"\n\n### Input:\n')[1][:-1].replace("\n"," ").replace(",","").replace("("," ").replace(")"," ") for i in data]
 sql = ["select " + i['output'] for i in data]
-# print(question[0])
-# print(schema[0])
-# print(sql[0])
 
-# print(question[110])
-# print(schema[110])
-# print(sql[110])
 ques = []
 for i, j, k in zip(question, sql, schema):
     ii = remove_str(i)
@@ -72,5 +66,5 @@ for i, j, k in zip(question, sql, schema):
     total.append(one)
 
 data_total = json.dumps(total,indent=4,ensure_ascii=False)
-with open('/root/error_corrected/code/rag_doc/docs_4.json',mode='w') as f:
+with open('./skeleton.json',mode='w') as f:
     f.write(data_total)

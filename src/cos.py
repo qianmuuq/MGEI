@@ -16,7 +16,7 @@ plt.rcParams['font.sans-serif'] = ['SimHei']
 matplotlib.rcParams['axes.unicode_minus'] = False
 
 def data_process():
-    with open('/root/error_corrected/code/rag_doc/docs_pred.json') as f:
+    with open('./docs_pred.json') as f:
         data = json.load(f)
     
     sql_label = {}
@@ -68,7 +68,7 @@ def data_loader(data, sql, label, tokenizer):
 class Word_BERT(nn.Module):
     def __init__(self):
         super(Word_BERT, self).__init__()
-        self.bert = BertModel.from_pretrained(r'/root/data/bert-base-uncased')
+        self.bert = BertModel.from_pretrained(r'./bert-base-uncased')
 
     def forward(self, word_input, masks):
         output = self.bert(word_input, attention_mask=masks)
@@ -108,10 +108,8 @@ if __name__=='__main__':
     data, sqls, labels = data_process()
     print(data[0], sqls[0], labels[0])
     #加载bert token和config
-    tokenizer = AutoTokenizer.from_pretrained(r'/root/data/bert-base-uncased', use_fast=True)
-    config = AutoConfig.from_pretrained(r'/root/data/bert-base-uncased')
+    tokenizer = AutoTokenizer.from_pretrained(r'./bert-base-uncased', use_fast=True)
+    config = AutoConfig.from_pretrained(r'./bert-base-uncased')
     # #处理成模型输入的dataloader
     train_tensor = data_loader(data, sqls, labels, tokenizer)
-    # test_tensor = data_loader(test_data, test_label, tokenizer, max_len)
-    # #训练bert分类
     predict(train_tensor, data, sqls)

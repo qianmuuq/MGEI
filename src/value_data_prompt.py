@@ -23,14 +23,14 @@ def get_cursor_from_path(sqlite_path, query):
 
 
 import json
-with open('/root/spider_dataset/instruct_data/dev.json') as f:
+with open('./dev.json') as f:
     data = json.load(f)
 
-with open('/root/spider_dataset/dev.json') as f:
+with open('./dataset//spider/dev.json') as f:
     data_path = json.load(f)
 
 preds = []
-with open('/root/LLaMA-Efficient-Tuning/eval_test/model_saved_lora_codellama_13b_spider_insrtuct_epoch10_lora_target_all/sql_pred.txt') as f:
+with open('./sql_pred.txt') as f:
     lines = f.readlines()
     for line in lines:
         preds.append(line.strip())
@@ -49,7 +49,7 @@ print(datas[0])
 
 data_total = []
 for i, indexx in zip(datas, index):
-    db_path = '/root/spider_dataset/database/' + i["db_id"] + '/' + i["db_id"] + '.sqlite'
+    db_path = './dataset//spider/' + i["db_id"] + '/' + i["db_id"] + '.sqlite'
     out = i["pred"].split()
     cols = []
     table = []
@@ -67,14 +67,11 @@ for i, indexx in zip(datas, index):
             if "." in j:
                 t, c = j.split(".")
                 g_str = "select distinct " + c + " from " + t
-                # print(i["output"])
-                # print(g_str)
+
                 cc = c
                 result = get_cursor_from_path(db_path, g_str)
             else:
                 g_str = "select distinct " + j + " from " + table[0]
-                # print(i["output"])
-                # print(g_str)
                 cc = j
                 result = get_cursor_from_path(db_path, g_str)
             result_all = []
@@ -82,7 +79,6 @@ for i, indexx in zip(datas, index):
                 if ii[0]==None:
                     continue
                 result_all.append(str(ii[0]))
-            # print(result_all)
             cols_all[cc] = ", ".join(result_all)
         
         i["cols"] = cols_all
@@ -104,8 +100,7 @@ for i in data_total:
         "index": i["index"]
     }
     data_a.append(one)
-print(data_a[0])
-print(len(data_a))
+
 data_total = json.dumps(data_a, indent=4)
 with open('data/pred.json', mode='w') as f:
     f.write(data_total)
